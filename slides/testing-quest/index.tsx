@@ -310,6 +310,19 @@ const HEART = ['.kk.kk.', 'krrkrrk', 'krrrrrk', '.krrrk.', '..krk..', '...k...']
 
 const STAR = ['..y..', '.yyy.', 'yyyyy', '.yyy.', '.y.y.'];
 
+const FLOPPY = [
+  'kkkkkkkkk.',
+  'kBBwwwwBBk',
+  'kBBwwkwBBk',
+  'kBBwwwwBBk',
+  'kBBBBBBBBk',
+  'kBwwwwwwBk',
+  'kBwkkkkwBk',
+  'kBwwwwwwBk',
+  'kBwkkkkwBk',
+  'kkkkkkkkkk',
+];
+
 const CHECK = ['......k', '.....kk', 'k...kk.', 'kk.kk..', '.kkk...', '..k....'];
 
 const rolePal = (shirt: string): Pal => ({ ...PAL, r: shirt });
@@ -2224,36 +2237,157 @@ const Insight: Page = () => (
         </Pop>
       </Step>
       <Step>
-        <Pop style={{ marginTop: 14 }}>
+        <Pop style={{ marginTop: 22 }}>
           <MapRow problem="組合多到測不完" fix="權限矩陣，一格一格寫成測試，規格=規則" layer="單元" color={C.green} />
         </Pop>
       </Step>
       <Step>
-        <Pop style={{ marginTop: 14 }}>
+        <Pop style={{ marginTop: 22 }}>
           <MapRow problem="極端狀況" fix="邊界值和併發，事先列出來，最大程度減少意外" layer="單元 · 整合" color={C.blue} />
         </Pop>
       </Step>
       <Step>
-        <Pop style={{ marginTop: 14 }}>
+        <Pop style={{ marginTop: 22 }}>
           <MapRow problem="表單上的人為疏失" fix="機器不會累，每次都完整跑一遍" layer="單元 · CI" color={C.purple} />
         </Pop>
       </Step>
       <Step>
-        <Pop style={{ marginTop: 14 }}>
+        <Pop style={{ marginTop: 22 }}>
           <MapRow problem="部署設定" fix="設定也要被檢查，缺了就不准啟動" layer="啟動檢查 · Smoke" color={C.ink} />
         </Pop>
       </Step>
       <Step>
-        <Pop style={{ marginTop: 14 }}>
+        <Pop style={{ marginTop: 22 }}>
           <MapRow problem="打錯、寫反、改 A 壞 B" fix="日常小疏失，大量單元測試每次 push 當場抓到" layer="單元" color={C.yellow} />
         </Pop>
       </Step>
+    </Steps>
+  </Shell>
+);
+
+// ─── Save-point metaphor: tests are the save before the boss ────────────────
+
+const StageTile = ({ sub, children, bg = C.paper }: { sub: string; children: ReactNode; bg?: string }) => (
+  <PixelBox
+    w={4}
+    bg={bg}
+    style={{
+      width: 170,
+      height: 150,
+      flex: 'none',
+      boxSizing: 'border-box',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 12,
+    }}
+  >
+    {children}
+    <span style={{ fontSize: 24 }}>{sub}</span>
+  </PixelBox>
+);
+
+const StageNo = ({ children }: { children: string }) => (
+  <span style={{ fontFamily: PRESS, fontSize: 28, color: C.ink }}>{children}</span>
+);
+
+const LaneArrow = () => <span style={{ fontFamily: PRESS, fontSize: 22, color: C.muted }}>&gt;</span>;
+
+const Lane = ({
+  label,
+  color,
+  children,
+  result,
+  detail,
+}: {
+  label: string;
+  color: string;
+  children: ReactNode;
+  result: string;
+  detail: string;
+}) => (
+  <PixelBox style={{ padding: '24px 28px', display: 'flex', alignItems: 'center', gap: 16 }}>
+    <div style={{ width: 150, flex: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
+      <Sprite art={HERO} px={5} className="tq-a tq-bob" />
+      <Chip bg={color} size={24}>
+        {label}
+      </Chip>
+    </div>
+    {children}
+    <PixelBox
+      bg={C.ink}
+      shadow={false}
+      w={4}
+      style={{ flex: 1, alignSelf: 'stretch', padding: '20px 24px', color: C.paper, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 14 }}
+    >
+      <span className="tq-a tq-blink" style={{ fontFamily: PRESS, fontSize: 26, color }}>
+        {result}
+      </span>
+      <span style={{ fontSize: 26, lineHeight: 1.4 }}>{detail}</span>
+    </PixelBox>
+  </PixelBox>
+);
+
+const LegendItem = ({ game, dev }: { game: string; dev: string }) => (
+  <span>
+    {game} <span style={{ color: C.muted }}>=</span> <span style={{ color: C.purple }}>{dev}</span>
+  </span>
+);
+
+const SavePoint: Page = () => (
+  <Shell ch={CH3} title="INSIGHT：測試就是打王前的存檔">
+    <Steps>
+      <Lane label="沒存檔" color={C.red} result="GAME OVER" detail="從 1-1 重來：同一個 bug 再踩一次">
+        <StageTile sub="開發"><StageNo>1-1</StageNo></StageTile>
+        <LaneArrow />
+        <StageTile sub="改需求"><StageNo>1-2</StageNo></StageTile>
+        <LaneArrow />
+        <StageTile sub="修 bug"><StageNo>1-3</StageNo></StageTile>
+        <LaneArrow />
+        <StageTile sub="上線" bg={C.sand}><Sprite art={BUG} px={7} /></StageTile>
+      </Lane>
       <Step>
+        <Pop style={{ marginTop: 32 }}>
+          <Lane label="有存檔" color={C.green} result="CONTINUE" detail="從存檔點再打：踩過的坑不會再掉進去">
+            <StageTile sub="開發"><StageNo>1-1</StageNo></StageTile>
+            <LaneArrow />
+            <StageTile sub="改需求"><StageNo>1-2</StageNo></StageTile>
+            <LaneArrow />
+            <StageTile sub="寫測試" bg={C.yellow}><Sprite art={FLOPPY} px={7} className="tq-a tq-bob" /></StageTile>
+            <LaneArrow />
+            <StageTile sub="上線" bg={C.sand}><Sprite art={BUG} px={7} /></StageTile>
+          </Lane>
+        </Pop>
+      </Step>
+      <Step>
+        <div style={{ marginTop: 32, display: 'flex', gap: 48, fontSize: 28 }}>
+          <LegendItem game="打王" dev="上線" />
+          <LegendItem game="存檔" dev="寫測試" />
+          <LegendItem game="讀檔" dev="上線前跑測試" />
+          <LegendItem game="重來" dev="同一個錯再犯" />
+        </div>
         <PixelBox
           bg={C.ink}
-          style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: '22px 40px', color: C.paper, fontSize: 34 }}
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            padding: '22px 40px',
+            color: C.paper,
+            fontSize: 34,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 28,
+          }}
         >
-          測試不是為了避免犯錯，而是<span style={{ color: C.yellow }}>避免一直犯一樣的錯</span>。
+          <Chip bg={C.yellow} color={C.ink} size={22} style={{ fontFamily: PRESS, flex: 'none' }}>
+            SAVE
+          </Chip>
+          <span>
+            沒存檔就打王，輸了只能重來。測試＝<span style={{ color: C.yellow }}>打王前的存檔檢查</span>，同一個錯不必再犯一次。
+          </span>
         </PixelBox>
       </Step>
     </Steps>
@@ -3408,6 +3542,7 @@ export default [
   E2EIntro,
   Pyramid,
   Insight,
+  SavePoint,
   Automate,
   UnitVanilla,
   UnitVue,
@@ -3516,85 +3651,90 @@ export const notes: (string | undefined)[] = [
   `這裡是今天最重要的一個觀念：測試是可以執行的規格。
 （逐條按）回頭看剛剛那幾個難題：只測 happy path，就把使用者會做的事寫成案例，案例只會累積、不會忘記；組合太多，就把權限矩陣一格一格寫成單元測試，規格就是規則；極端狀況，就事先把邊界值和併發列出來，最大程度減少意外；人為疏失，就交給機器，機器不會累，每次都完整跑一遍；部署設定，就讓設定缺漏的時候程式直接啟動失敗，再加上 smoke test。
 （按下一步）最後一條是日常的小疏失：打錯字、null 沒處理、少一多一、條件寫反、改 A 壞 B。這些最常見，用大量的單元測試覆蓋，每次 push 當場抓到。
-最右邊那欄是誰來負責：每一個難題，都有負責處理它的那一層。簡單講，基本的大量寫，進階的挑關鍵寫。
-（按下一步）最後這句請大家記住：測試不是為了避免犯錯，人一定會犯錯；測試是為了避免一直犯一樣的錯。錯一次，寫成測試，同一個錯就再也不會溜到正式站。`,
-  // 18 Automate
+最右邊那欄是誰來負責：每一個難題，都有負責處理它的那一層。簡單講，基本的大量寫，進階的挑關鍵寫。`,
+  // 18 SavePoint
+  `用打電動來講這件事。大家都知道，打王之前一定要先存檔。
+上面這條是沒存檔：開發、改需求、修 bug 一路打上來，上線就是打王，一輸就 GAME OVER，只能從 1-1 重來，同一個 bug 再踩一次。
+（按下一步）下面這條是有存檔：打王之前先寫測試，就是存檔。就算上線出事，也是從存檔點繼續打，踩過的坑不會再掉進去。
+（按下一步）對照一下：打王是上線，存檔是寫測試，讀檔就是上線前把測試跑一遍，確認自己真的有存檔。
+所以測試不是為了避免犯錯，人一定會犯錯；它是讓我們不必一直從頭犯一樣的錯。`,
+  // 19 Automate
   `進到程式碼之前，先講最關鍵的一點：測試要自動跑，價值才會放大。
 測試的價值，等於它擋下的 bug，乘上它被執行的次數。寫了不跑，就跟沒寫一樣。
 左邊是靠人手動跑：想到才跑、上線前跑一次，一年大概二十幾次；趕的時候就跳過，漏跑了也沒人知道。
 右邊是交給 CI：每天十次 push，一年兩百五十個工作天，就是兩千五百次，每一次都完整跑，不會累也不會忘。同一份測試，價值差了一百倍。
 （逐張按）實際上分四個時間點跑：commit 前跑單元測試，幾秒就好；開 PR 全部跑，紅燈不能 merge；每天晚上跑完整的 E2E，比較慢的也放這裡；部署之後跑 smoke test，確認正式站設定真的生效。`,
-  // 19 UnitVanilla
+  // 20 UnitVanilla
   `接下來是實戰，先從 Vanilla JS 開始。工具用 Vitest，設定 globals 之後，test 和 expect 不用另外 import。
 test.each 這個寫法很適合邊界值：一行就是一個案例，整張表看起來就是一份規格。
 第二組是成績輸入的轉換：半形、全形、前後空白都要轉成 85；空字串、超過 100、負數都要回 null。
 之後想到新的邊界，加一行就好，不用重寫整個測試。
 （互動：點左邊的「模擬有人改壞」。假設有人把學分判斷的小於等於改成小於，綠色徽章馬上變成 1 FAILED，程式碼裡失敗的那一行也會閃紅框。這就是改 A 壞 B 被當場擋下的樣子。再點「還原」恢復。）`,
-  // 20 UnitVue
+  // 21 UnitVue
   `Vue 的部分用 Vue Test Utils。
 第一個測試處理切換學生的殘留問題：先輸入 85，換成 B 同學，欄位必須是空的。
 第二個測試處理連點：把 save 做成一個永遠不 resolve 的 Promise，模擬網路很慢的狀態，連送兩次，只能呼叫一次，而且按鈕要是停用的。
 剛剛表單那頁的兩個問題，在這裡就被擋下了。`,
-  // 21 UnitDotnet
+  // 22 UnitDotnet
   `後端用 xUnit。Theory 加上 InlineData，就是 C# 版本的 test.each。
 四行 InlineData 就是權限矩陣的四格：本科老師可以改、他科老師不行、學生不行、管理員可以。
 小明那個 bug，就是少了第二行。補上之後，以後誰改到權限邏輯，這一格都會一直盯著。
 右邊註解標了 Arrange、Act、Assert，就是剛剛講的 AAA。`,
-  // 22 IntegrationFront
+  // 23 IntegrationFront
   `前端的整合測試，重點在 API 出錯的時候，畫面有沒有講人話。
 上面是共用的 MSW 設定，它會攔截 fetch，假裝後端回 409 名額已滿，或 403 沒有權限。
 左邊是 Vanilla JS 的選課按鈕，按下去之後，訊息區要顯示名額已滿。右邊是 Vue 的成績表單，送出之後要提示沒有權限。
 重點是使用者看到的是一句聽得懂的話，而不是一片空白或 undefined。`,
-  // 23 IntegrationDotnet
+  // 24 IntegrationDotnet
   `後端的整合測試用 WebApplicationFactory，它會在測試裡把整個 ASP.NET Core 應用程式跑起來，真的打 API。
 CreateClientAs 是我們自己包的小工具，用假的身分驗證，產生指定身分的 client。
 第一個測試：學生改成績要回 403。第二個是併發：41 個學生同時選一門 40 人的課，只能有 40 個成功。
 提醒一下，併發測試一定要接真的資料庫，例如用 Testcontainers 起一個 SQL Server。記憶體裡的假資料庫沒有鎖，測了也是白測。`,
-  // 24 ConfigCheck
+  // 25 ConfigCheck
   `部署設定也可以測，有兩招。
 第一招在 Program.cs：把設定綁成強型別的 Options，標上 Required，再加 ValidateOnStart。只要少設定一項，應用程式就直接啟動失敗，不會帶著錯的設定默默上線。
 第二招是直接寫一個測試，讀正式站的設定檔，確認學分上限是開著的。這個測試放進 CI，有人改設定檔就會被擋下。
 時間設定一律帶時區。部署完再跑一支 smoke test 確認，這樣小明那個狀況就不會再發生。`,
-  // 25 E2E
+  // 26 E2E
   `最後是 E2E，用 Playwright。
 第一個測試是跨角色的流程：老師登入、改成績、看到已儲存，再換學生登入，查得到 88 分。
 第二個測試：學生直接打開改成績的網址，要被導到 403。
 loginAs 是我們包的小工具。E2E 只看畫面，所以前端用 Vanilla 還是 Vue 寫的都一樣能測。
 選器盡量用 getByRole、getByLabel 這種使用者看得到的東西，畫面改版的時候比較不容易壞。`,
-  // 26 AgentEra
+  // 27 AgentEra
   `接下來講今天的另一個重點。現在九成以上的程式碼都是 Agent 產生的。
 Agent 寫得很快，但它錯的時候也很有自信。
 （逐條按）它可能順手改了你沒交代的地方、測不到的路徑直接略過，或是做出來的東西跟規劃不一樣，而且講得頭頭是道。
 code review 看幾百行 diff 很容易漏，但測試不會。測試就是 Agent 必須遵守的規格，行為有沒有走偏，跑一次就知道。`,
-  // 27 Tdd
+  // 28 Tdd
   `第一種跟 Agent 合作的流程是 TDD。
 分工很清楚：人負責寫測試，先跑一次確認它真的會失敗；Agent 負責實作，做到全部通過；接著 Agent 可以重構，但測試要一直維持綠燈。
 下面這段指令很重要：不准修改測試檔。不然 Agent 有時候會為了讓測試通過，直接去改測試。
 測試是人訂的規格，Agent 只負責去達成它。`,
-  // 28 Sdd
+  // 29 Sdd
   `第二種是 SDD，規格驅動開發。
 先寫規格，再從規格整理出驗收條件，每一條驗收條件變成一個測試，然後才讓 Agent 實作，最後跑測試驗證。
 左邊是一份規格的例子，用「假設、當、那麼」的格式寫，主管和 PM 也看得懂。
 右邊是驗收條件跟測試的對應：本科老師可以改，寫單元測試；他科老師打 API 回 403，寫整合測試；學生查得到新成績，寫 E2E。
 規格放在 repo 裡，Agent 每次動工都從這份讀起，就不會偏離規劃。`,
-  // 29 AgentPractices
+  // 30 AgentPractices
   `還有三個實用的做法。
 （按下一步）第一，要讓 Agent 動舊 code 之前，先寫特性測試，把現在的行為記錄下來。這樣它改壞了，馬上就知道。
 （按下一步）第二，讓 Agent 自己跑測試。在 CLAUDE.md 或 AGENTS.md 寫清楚，改完一定要跑測試，全綠才算完成。
 （按下一步）第三，CI 是最後一道關卡，沒有綠燈就不能 merge，人寫的跟 Agent 寫的都一樣。
 總結一句：Agent 可以寫實作，但什麼才是對的，由測試決定，而測試由人把關。`,
-  // 30 Workflow
+  // 31 Workflow
   `把前面講的串起來，有測試之後，一個需求從開工到上線會長這樣。
 （按下一步）第一排是開發：人先寫規格和驗收條件，再把驗收條件寫成測試，跑一次確認是紅燈。接著交給 Agent 實作到全綠，Agent 自己在本機把所有測試跑完才算完成。
 （按下一步）第二排是上線：開 PR，CI 自動跑單元、整合、E2E 三層測試。人做 review 的時候，重點不是逐行看 Agent 的 diff，而是看規格和測試有沒有寫對。合併之後部署，自動跑 Smoke test。
 上線後還是出錯怎麼辦？下一頁會講。
 分工就是底下這句：人決定什麼是對的，Agent 負責做到，CI 負責每一次都檢查。`,
-  // 31 Loop
+  // 32 Loop
   `再厲害的發想，邊界情況還是一定會漏。所以重點不是一次想完，而是讓它變成一個循環。
 發想案例、寫成測試、實作、上線。上線後發現漏掉的情況，第一件事不是馬上修，而是先寫一個能重現問題的測試，看它變紅燈，再修到綠燈。
 這樣同一個 bug 就永遠不會回來，而且新想到的情況也會補回發想清單。
 右邊就是剛剛大家想到的情境，每一個都是待寫的測試。這份清單會一直長大，測試也會越來越多。`,
-  // 32 BeforeAfter
+  // 33 BeforeAfter
   `最後看成果。回到一開始那五個場景：
 （逐條按）他科老師改成績，以前是學校承辦打電話來我們才知道，現在單元測試的權限矩陣會擋下來。
 超收，以前是 KELLY 接到學校電話才知道，現在有併發的整合測試。
@@ -3602,14 +3742,14 @@ code review 看幾百行 diff 很容易漏，但測試不會。測試就是 Agen
 登錯人，以前要等老師期末對帳，現在有表單重設的單元測試。
 設定缺漏，以前是教務處審核才發現，現在應用程式一啟動就會報錯，部署完還有 smoke test。
 差別就在：問題是被客戶發現，還是被我們自己先擋下來。`,
-  // 33 DevBeforeAfter
+  // 34 DevBeforeAfter
   `除了 bug 被擋下，開發的日常也不一樣了。
 （逐條按）改一行舊程式：以前怕改 A 壞 B，乾脆不敢動；現在跑一次測試就知道。
 上線前：以前大家手動點一輪，靠記憶；現在 CI 綠燈就能上，人只要花時間做機器做不到的人為確認。
 交給 Agent 寫：以前幾百行 diff 只能用眼睛看；現在 Agent 一走偏，測試馬上變紅燈。
 新人接手：以前規則都在資深同事的腦袋裡；現在測試就是一份看得懂、跑得動的規格。
 修完一個 bug：以前不知道哪天又會回來；現在有重現測試，同一個 bug 不會再犯。`,
-  // 34 Clear
+  // 35 Clear
   `我們現在完全沒有測試，所以不用一次到位。先做這三件事就好：
 （按下一步）第一，以後遇到新的 bug，先補一個重現測試再修。
 （按下一步）第二，先從權限和設定下手，這兩塊出事最痛，也最好寫測試。
